@@ -5,3 +5,4 @@
 .gitattributes
 doc/*
 js/firebaseConfig.js
+.iml
