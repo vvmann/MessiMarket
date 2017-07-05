@@ -16,11 +16,6 @@
         };
     }
 
-    database.ref('/users/').once('value').then(function(snapshot) {
-        const users = snapshot.val();
-        drawUsers(users);
-    });
-
     database.ref('/users/').on('value', function(snapshot) {
        drawUsers(snapshot.val());
     });
