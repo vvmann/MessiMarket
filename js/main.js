@@ -5,20 +5,15 @@
 
     var products = [];
 
-    function createUserElement(username) {
-        $('#users').append('<button class="user">' + username + '</button>');
+    function createButtonElement(text, containerId, className = "button", value) {
+        $('#' + containerId).append(`<button class="${className}" value="${value}">${text}</button>`);
     }
 
-    function drawUsers(users) {
-        $('#users > button').remove();
-        for(const key of Object.keys(users)) {
-            createUserElement(users[key].name);
+    function drawButtonCollection(collection, containerId, className) {
+        for(const key of Object.keys(collection)) {
+            createButtonElement(collection[key].name, containerId, className, collection[key].memberprice);
         };
     }
-
-    database.ref('/users/').on('value', function(snapshot) {
-       drawUsers(snapshot.val());
-    });
 
     function createUser(username) {
         var id = Math.floor(Math.random() * (100000 + 1));
@@ -31,6 +26,15 @@
         createUser($("#newUser").val());
     });
 
+    database.ref('/users/').on('value', function(snapshot) {
+        $('#users > button').remove();
+        drawButtonCollection(snapshot.val(), "users", "user");
+    });
+
+    database.ref('/products/').once('value').then( function(snapshot) {
+        drawButtonCollection(snapshot.val(), "itemListing", "item");
+    });
+
     function redrawInfo() {
         $("#products")[0].innerText = products.reduce(function(text, product) {
             return text + product.name + ", ";
@@ -41,12 +45,12 @@
         }, 0);
     }
 
-    $(".item").click(function() {
+    $("#itemListing").on('click', '.item', function() {
         products.push({name: $(this)[0].innerText, value: parseFloat($(this)[0].value)});
         redrawInfo();
     });
 
-    $(".undo").click(function() {
+    $(".undo").on('click', function() {
        products.pop();
        redrawInfo();
     });
