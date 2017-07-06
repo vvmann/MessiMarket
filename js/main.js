@@ -33,8 +33,9 @@
         drawButtonCollection(snapshot.val(), "users", "user");
     });
 
-    database.ref('/products/').once('value').then( function(snapshot) {
+    database.ref('/products/').on('value').then( function(snapshot) {
         drawButtonCollection(snapshot.val(), "itemListing", "item", "memberprice");
+        $("#items").hide();
     });
 
     function redrawInfo() {
@@ -54,6 +55,8 @@
         }
         $("#customer").text(user.name);
         $(".buy").attr('value', user.id);
+        $("#items").show();
+        $("#users").hide();
 
     });
 
@@ -68,9 +71,13 @@
     });
 
     $(".back").click(function() {
-       products = [];
-        $("#products").text("");
-        $("#price").text("0");
+        products = [];
+        user = {};
+        redrawInfo();
+        $("#customer").text("");
+
+        $("#items").hide();
+        $("#users").show();
     });
 
     $(".buy").click(function () {
@@ -85,6 +92,8 @@
         products = [];
         $("#customer").text("");
         redrawInfo();
+        $("#items").hide();
+        $("#users").show();
     })
 
 }());
