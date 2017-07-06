@@ -4,6 +4,7 @@
     var database = firebase.database();
 
     var products = [];
+    var user = {};
 
     function createButtonElement(text, containerId, className = "button", value) {
         $('#' + containerId).append(`<button class="${className}" value="${value}">${text}</button>`);
@@ -29,7 +30,6 @@
 
     database.ref('/users/').on('value', function(snapshot) {
         $('#users > button').remove();
-        console.log(snapshot.val());
         drawButtonCollection(snapshot.val(), "users", "user");
     });
 
@@ -74,7 +74,17 @@
     });
 
     $(".buy").click(function () {
-
+        database.ref('/transactions/').push({
+            user: user,
+            products: products,
+            totalCost: products.reduce(function(sum, product) {
+                return sum + product.value;
+            }, 0)
+        });
+        user = {};
+        products = [];
+        $("#customer").text("");
+        redrawInfo();
     })
 
 }());
