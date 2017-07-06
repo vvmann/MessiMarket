@@ -17,6 +17,16 @@
         }
     }
 
+    database.ref('/users/').on('value', function(snapshot) {
+        $('#users > button').remove();
+        drawButtonCollection(snapshot.val(), "users", "user");
+    });
+
+    database.ref('/products/').on('value').then( function(snapshot) {
+        drawButtonCollection(snapshot.val(), "itemListing", "item", "memberprice");
+        $("#items").hide();
+    });
+
     function createUser(username) {
         var id = Math.floor(Math.random() * (100000 + 1));
         database.ref('/users/' + id).push({
@@ -28,26 +38,6 @@
         createUser($("#newUser").val());
     });
 
-    database.ref('/users/').on('value', function(snapshot) {
-        $('#users > button').remove();
-        drawButtonCollection(snapshot.val(), "users", "user");
-    });
-
-    database.ref('/products/').on('value').then( function(snapshot) {
-        drawButtonCollection(snapshot.val(), "itemListing", "item", "memberprice");
-        $("#items").hide();
-    });
-
-    function redrawInfo() {
-        $("#products").text(products.reduce(function(text, product) {
-            return text + product.name + ", ";
-        }, ""));
-
-        $("#price").text(products.reduce(function(sum, product) {
-            return sum + product.value;
-        }, 0));
-    }
-
     $("#users").on('click', '.user', function () {
         user = {
             name: $(this).text(),
@@ -57,27 +47,40 @@
         $(".buy").attr('value', user.id);
         $("#items").show();
         $("#users").hide();
-
     });
+
+    function redrawCartTotals() {
+        $("#products").text(products.reduce(function(text, product) {
+            return text + product.name + ", ";
+        }, ""));
+
+        $("#price").text(products.reduce(function(sum, product) {
+            return sum + product.value;
+        }, 0));
+    }
+
 
     $("#itemListing").on('click', '.item', function() {
         products.push({name: $(this).text(), value: parseFloat($(this)[0].value)});
-        redrawInfo();
+        redrawCartTotals();
     });
 
     $(".undo").on('click', function() {
        products.pop();
-       redrawInfo();
+       redrawCartTotals();
     });
 
-    $(".back").click(function() {
+    function emptyCart() {
         products = [];
         user = {};
-        redrawInfo();
+        redrawCartTotals();
         $("#customer").text("");
-
         $("#items").hide();
         $("#users").show();
+    }
+
+    $(".back").click(function() {
+        emptyCart();
     });
 
     $(".buy").click(function () {
@@ -88,12 +91,7 @@
                 return sum + product.value;
             }, 0)
         });
-        user = {};
-        products = [];
-        $("#customer").text("");
-        redrawInfo();
-        $("#items").hide();
-        $("#users").show();
+        emptyCart();
     })
 
 }());
